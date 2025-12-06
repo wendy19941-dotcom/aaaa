@@ -1,54 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 數位賦能工作坊報名</title>
+  
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
   <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
   <style>
-    /* 自訂 CSS 樣式，確保專業和美觀 */
-    body {
-      background-color: #f5f5f5;
-    }
+    /* 專業簡約風格 CSS */
+    body { background-color: #f5f5f5; }
     .page-content {
-      max-width: 600px;
-      margin: 40px auto;
-      background-color: #ffffff;
-      padding: 32px;
+      max-width: 600px; margin: 40px auto; background-color: #ffffff; padding: 32px;
       box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
     }
-    h2 {
-      text-align: center;
-      color: #3f51b5;
-      margin-top: 0;
-      font-weight: 300;
-    }
-    .mdl-textfield {
-      width: 100%;
-    }
-    .mdl-button-submit {
-      width: 100%;
-      margin-top: 20px;
-    }
+    h2 { text-align: center; color: #3f51b5; margin-top: 0; font-weight: 300; }
+    .mdl-textfield { width: 100%; }
+    .mdl-button-submit { width: 100%; margin-top: 20px; }
     #response-message {
-      text-align: center;
-      padding: 15px;
-      margin-top: 20px;
-      display: none;
-      border-radius: 4px;
-      font-weight: bold;
+      text-align: center; padding: 15px; margin-top: 20px; display: none; border-radius: 4px; font-weight: bold;
     }
-    .success {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #a5d6a7;
-    }
-    .error {
-      background-color: #ffebee;
-      color: #c62828;
-      border: 1px solid #ef9a9a;
-    }
+    .success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .error { background-color: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
   </style>
 </head>
 <body>
@@ -62,7 +37,7 @@
   <form id="registrationForm">
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
       <input class="mdl-textfield__input" type="text" id="department" name="department" required>
-      <label class="mdl-textfield__label" for="department">部門單位 (例如：資訊技術部)</label>
+      <label class="mdl-textfield__label" for="department">部門單位</label>
     </div>
     
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -72,7 +47,7 @@
 
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
       <input class="mdl-textfield__input" type="text" id="title" name="title" required>
-      <label class="mdl-textfield__label" for="title">職稱 (例如：經理)</label>
+      <label class="mdl-textfield__label" for="title">職稱</label>
     </div>
 
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -92,50 +67,65 @@
 
 <script>
   document.getElementById('registrationForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // 阻止表單傳統提交
+    e.preventDefault(); 
     
     const form = e.target;
     const button = document.getElementById('submitButton');
     const messageDiv = document.getElementById('response-message');
     
-    // 禁用按鈕並更新文字，防止重複提交
+    // 鎖定按鈕並更新文字
     button.disabled = true;
     button.innerText = '送出中...';
     messageDiv.style.display = 'none';
 
-    // 將表單數據轉換為物件
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
-    // 調用 Apps Script 伺服器端的 processForm 函式 (非同步)
-    google.script.run
-      .withSuccessHandler(function(response) {
-        // 處理成功回傳的結果
+    // 🚨 這是您的 Apps Script 部署網址，請確認是最新版本！
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycby2_qa4Zo6TYDIX1_ja0uyXHN-TQ8a5uYXnswcrNbxW7YFLjsTC-yBiNV23c0_044bV7g/exec';
+
+    fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'cors', 
+        cache: 'no-cache',
+        headers: {
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(data) // 發送 JSON 格式資料
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(response => {
+        // 處理伺服器回傳的結果
         button.disabled = false;
         button.innerText = '立即報名';
-        
         messageDiv.textContent = response.message;
         
         if (response.success) {
-          messageDiv.className = 'success';
-          form.reset(); // 成功後清空表單
-          componentHandler.upgradeElements(form); // 重新升級 MDL 樣式
+            messageDiv.className = 'success';
+            form.reset(); 
+            if (typeof componentHandler !== 'undefined') {
+                componentHandler.upgradeElements(form);
+            }
         } else {
-          messageDiv.className = 'error';
+            messageDiv.className = 'error';
         }
-        
         messageDiv.style.display = 'block';
-      })
-      .withFailureHandler(function(error) {
-        // 處理失敗回傳的結果 (例如連線錯誤)
+    })
+    .catch(error => {
+        // 處理連線或網路錯誤
         button.disabled = false;
         button.innerText = '立即報名';
-        messageDiv.textContent = '發生連線錯誤：' + error.message;
+        messageDiv.textContent = '❌ 網路連線錯誤，或伺服器端發生問題。';
         messageDiv.className = 'error';
         messageDiv.style.display = 'block';
-      })
-      .processForm(data); // 呼叫 Code.gs 中的 processForm 函式
-  });
+        console.error('Submission Error:', error);
+    });
+});
 </script>
 
 </body>
